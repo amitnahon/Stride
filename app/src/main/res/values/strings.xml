@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Stride</string>
+
+    <!-- Payment Methods -->
+    <string-array name="payment_methods">
+        <item>Cash</item>
+        <item>Credit Card</item>
+        <item>Debit Card</item>
+        <item>Meal Plan</item>
+        <item>Student ID Balance</item>
+    </string-array>
+</resources>
