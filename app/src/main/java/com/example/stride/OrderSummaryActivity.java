@@ -14,6 +14,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import java.util.Map;
 
 public class OrderSummaryActivity extends AppCompatActivity {
@@ -21,7 +22,9 @@ public class OrderSummaryActivity extends AppCompatActivity {
     private CartAdapter cartAdapter;
     private TextView totalPriceView;
     private EditText buildingInput;
+    private EditText roomInput;
     private Spinner paymentMethodSpinner;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,15 @@ public class OrderSummaryActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        // Initialize Firebase Analytics
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        // Log screen view
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "OrderSummaryActivity");
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "OrderSummaryActivity");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
 
         cart = Cart.getInstance();
         initializeViews();
@@ -64,6 +76,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
     private void initializeViews() {
         totalPriceView = findViewById(R.id.total_price);
         buildingInput = findViewById(R.id.building_room_input);
+        roomInput = findViewById(R.id.room_number_input);
         paymentMethodSpinner = findViewById(R.id.payment_method_spinner);
     }
 
@@ -89,12 +102,21 @@ public class OrderSummaryActivity extends AppCompatActivity {
 
     private void confirmOrder() {
         String building = buildingInput.getText().toString();
-        if (building.isEmpty()) {
+        String room = roomInput.getText().toString();
+        if (building.isEmpty() || room.isEmpty()) {
             Toast.makeText(this, "Please enter building and room number", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String paymentMethod = paymentMethodSpinner.getSelectedItem().toString();
+        // Log order confirmation
+        Bundle orderBundle = new Bundle();
+        orderBundle.putString("restaurant_name", cart.getRestaurantName());
+        orderBundle.putString("payment_method", paymentMethod);
+        orderBundle.putDouble("total_amount", cart.getTotalPrice());
+        orderBundle.putInt("item_count", cart.getItemCount());
+        mFirebaseAnalytics.logEvent("order_confirmed", orderBundle);
+
         // Here you would typically send the order to a backend server
         Toast.makeText(this, "Order confirmed! Payment method: " + paymentMethod, Toast.LENGTH_LONG).show();
         cart.clearCart();

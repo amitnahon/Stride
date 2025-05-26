@@ -2,6 +2,7 @@ package com.example.stride;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -12,24 +13,38 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MenuActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private MenuAdapter adapter;
     private List<com.example.stride.MenuItem> menuItems;
-    private Map<String, List<com.example.stride.MenuItem>> restaurantMenus;
     private TextView cartCountView;
     private Cart cart;
     private String restaurantName;
+    private FirebaseFirestore db;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        // Initialize Firebase Analytics
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
+        // Log screen view
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, "MenuActivity");
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "MenuActivity");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
 
         // Enable back button in action bar
         if (getSupportActionBar() != null) {
@@ -47,34 +62,109 @@ public class MenuActivity extends AppCompatActivity {
 
         cart = Cart.getInstance();
         restaurantName = getIntent().getStringExtra("restaurant_name");
-        String cuisine = getIntent().getStringExtra("restaurant_cuisine");
 
-        TextView titleTextView = findViewById(R.id.restaurant_title);
-        TextView cuisineTextView = findViewById(R.id.restaurant_cuisine);
+        // Initialize UI components
+        recyclerView = findViewById(R.id.menu_recycler_view);
         cartCountView = findViewById(R.id.cart_count);
         ImageButton cartButton = findViewById(R.id.cart_button);
 
-        titleTextView.setText(restaurantName);
-        cuisineTextView.setText(cuisine);
-        updateCartCount();
-
-        recyclerView = findViewById(R.id.menu_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        initializeDummyMenus();
-        menuItems = restaurantMenus.get(restaurantName);
-        
+        // Set up RecyclerView
+        menuItems = new ArrayList<>();
         adapter = new MenuAdapter(menuItems, item -> onMenuItemSelected(item));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
+        // Set up cart button
         cartButton.setOnClickListener(v -> {
-            if (cart.getItemCount() > 0) {
-                Intent intent = new Intent(this, OrderSummaryActivity.class);
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show();
+            if (cart.getItems().isEmpty()) {
+                Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
+                return;
             }
+            Intent intent = new Intent(this, OrderSummaryActivity.class);
+            intent.putExtra("restaurant_name", restaurantName);
+            startActivity(intent);
         });
+
+        // Load menu items from Firestore
+        loadMenuItems();
+    }
+
+    private void loadMenuItems() {
+        Toast.makeText(this, "Loading menu for: " + restaurantName, Toast.LENGTH_SHORT).show();
+        Log.d("MenuActivity", "Loading menu for restaurant: " + restaurantName);
+        
+        // First, let's check if we can get any documents at all
+        db.collection("menuitems")
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                Log.d("MenuActivity", "Total documents in collection: " + queryDocumentSnapshots.size());
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    Log.d("MenuActivity", "Document ID: " + doc.getId() + 
+                        ", restaurantId: " + doc.getString("restaurantId") +
+                        ", name: " + doc.getString("name"));
+                }
+            })
+            .addOnFailureListener(e -> {
+                Log.e("MenuActivity", "Error getting all documents", e);
+            });
+
+        // Now get the filtered results
+        Log.d("MenuActivity", "Querying for restaurantId: " + restaurantName);
+        db.collection("menuitems")
+            .whereEqualTo("restaurantId", restaurantName)
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                menuItems.clear();
+                Log.d("MenuActivity", "Found " + queryDocumentSnapshots.size() + " items for " + restaurantName);
+                Toast.makeText(this, "Found " + queryDocumentSnapshots.size() + " items", Toast.LENGTH_SHORT).show();
+                
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                    Log.d("MenuActivity", "Processing document: " + document.getId());
+                    FirestoreMenuItem firestoreItem = document.toObject(FirestoreMenuItem.class);
+                    Log.d("MenuActivity", "Item details - name: " + firestoreItem.getName() + 
+                        ", restaurantId: " + firestoreItem.getRestaurantId() +
+                        ", price: " + firestoreItem.getPrice());
+                    
+                    com.example.stride.MenuItem menuItem = new com.example.stride.MenuItem(
+                        firestoreItem.getName(),
+                        firestoreItem.getDescription(),
+                        firestoreItem.getPrice(),
+                        firestoreItem.getImageResourceName()
+                    );
+                    menuItems.add(menuItem);
+                }
+                Log.d("MenuActivity", "Total items in menuItems list: " + menuItems.size());
+                adapter.notifyDataSetChanged();
+            })
+            .addOnFailureListener(e -> {
+                Log.e("MenuActivity", "Error loading menu", e);
+                Toast.makeText(this, "Error loading menu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+    }
+
+    private void onMenuItemSelected(com.example.stride.MenuItem item) {
+        cart.addItem(item, restaurantName);
+        updateCartCount();
+        Toast.makeText(this, item.getName() + " added to cart", Toast.LENGTH_SHORT).show();
+
+        // Log menu item selection
+        Bundle itemBundle = new Bundle();
+        itemBundle.putString("item_name", item.getName());
+        itemBundle.putString("restaurant_name", restaurantName);
+        itemBundle.putDouble("item_price", item.getPrice());
+        mFirebaseAnalytics.logEvent("menu_item_selected", itemBundle);
+    }
+
+    private void updateCartCount() {
+        int count = cart.getItemCount();
+        cartCountView.setText(String.valueOf(count));
+        cartCountView.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+
+        // Log cart update
+        Bundle cartBundle = new Bundle();
+        cartBundle.putInt("cart_count", count);
+        cartBundle.putString("restaurant_name", restaurantName);
+        mFirebaseAnalytics.logEvent("cart_updated", cartBundle);
     }
 
     @Override
@@ -84,63 +174,5 @@ public class MenuActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void updateCartCount() {
-        int count = cart.getItemCount();
-        cartCountView.setText(String.valueOf(count));
-        cartCountView.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
-    }
-
-    private void onMenuItemSelected(com.example.stride.MenuItem item) {
-        if (!restaurantName.equals(cart.getRestaurantName()) && cart.getItemCount() > 0) {
-            new AlertDialog.Builder(this)
-                .setTitle("Clear Cart?")
-                .setMessage("Adding items from " + restaurantName + " will clear your current cart from " + cart.getRestaurantName() + ". Do you want to proceed?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    cart.clearCart();
-                    cart.addItem(item, restaurantName);
-                    updateCartCount();
-                    Toast.makeText(this, "Cart cleared and new item added", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("No", null)
-                .show();
-        } else {
-            cart.addItem(item, restaurantName);
-            updateCartCount();
-            Toast.makeText(this, "Added to cart: " + item.getName(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void initializeDummyMenus() {
-        restaurantMenus = new HashMap<>();
-
-        // Papa John's menu
-        List<com.example.stride.MenuItem> papaJohnsMenu = new ArrayList<>();
-        papaJohnsMenu.add(new com.example.stride.MenuItem("Pepperoni Pizza", "Classic pepperoni and cheese pizza", 14.99, "pepperoni_pizza"));
-        papaJohnsMenu.add(new com.example.stride.MenuItem("BBQ Chicken Pizza", "Grilled chicken with BBQ sauce", 16.99, "bbq_chicken_pizza"));
-        papaJohnsMenu.add(new com.example.stride.MenuItem("Garden Fresh Pizza", "Mushrooms, onions, green peppers, and tomatoes", 15.99, "garden_pizza"));
-        restaurantMenus.put("Papa John's", papaJohnsMenu);
-
-        // Dig In menu
-        List<com.example.stride.MenuItem> digInMenu = new ArrayList<>();
-        digInMenu.add(new com.example.stride.MenuItem("Mediterranean Bowl", "Quinoa, falafel, hummus, and veggies", 12.99, "mediterranean_bowl"));
-        digInMenu.add(new com.example.stride.MenuItem("Harvest Bowl", "Sweet potatoes, brussels sprouts, wild rice", 11.99, "harvest_bowl"));
-        digInMenu.add(new com.example.stride.MenuItem("Chicken & Avocado", "Grilled chicken, avocado, mixed greens", 13.99, "chicken_avocado"));
-        restaurantMenus.put("Dig In", digInMenu);
-
-        // Sushi & Co menu
-        List<com.example.stride.MenuItem> sushiMenu = new ArrayList<>();
-        sushiMenu.add(new com.example.stride.MenuItem("California Roll", "Crab, avocado, and cucumber", 8.99, "california_roll"));
-        sushiMenu.add(new com.example.stride.MenuItem("Spicy Tuna Roll", "Fresh tuna with spicy sauce", 10.99, "spicy_tuna"));
-        sushiMenu.add(new com.example.stride.MenuItem("Dragon Roll", "Eel, cucumber, avocado", 15.99, "dragon_roll"));
-        restaurantMenus.put("Sushi & Co", sushiMenu);
-
-        // Five Guys menu
-        List<com.example.stride.MenuItem> fiveGuysMenu = new ArrayList<>();
-        fiveGuysMenu.add(new com.example.stride.MenuItem("Hamburger", "Hand-formed patty with unlimited toppings", 8.99, "hamburger"));
-        fiveGuysMenu.add(new com.example.stride.MenuItem("Cheeseburger", "Hand-formed patty with American cheese", 9.99, "cheeseburger"));
-        fiveGuysMenu.add(new com.example.stride.MenuItem("Bacon Cheeseburger", "Hand-formed patty with bacon and cheese", 11.99, "bacon_cheeseburger"));
-        restaurantMenus.put("Five Guys", fiveGuysMenu);
     }
 } 

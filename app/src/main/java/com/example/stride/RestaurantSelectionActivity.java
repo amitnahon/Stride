@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class RestaurantSelectionActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -27,6 +29,13 @@ public class RestaurantSelectionActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         searchEditText = findViewById(R.id.search_edit_text);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Test Crash button
+        Button crashButton = findViewById(R.id.crash_button);
+        crashButton.setOnClickListener(v -> {
+            FirebaseCrashlytics.getInstance().log("Test crash button clicked");
+            throw new RuntimeException("Test Crash");
+        });
 
         // Initialize restaurant data
         restaurantList = new ArrayList<>();

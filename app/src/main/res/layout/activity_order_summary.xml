@@ -45,7 +45,16 @@
         android:id="@+id/building_room_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Building &amp; Room Number"
+        android:hint="Building Number"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:drawable/edit_text"/>
+
+    <EditText
+        android:id="@+id/room_number_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Room Number"
         android:padding="12dp"
         android:layout_marginBottom="16dp"
         android:background="@android:drawable/edit_text"/>
