@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.stride">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -10,15 +12,29 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Stride">
 
-        <!-- Main Activity (First Screen) -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCiHU_yjxoinFwMyrpkAgdOv9nV7FryZTk"/>
+
+        <!-- Login Activity (Launcher) -->
         <activity
-            android:name=".RestaurantSelectionActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Splash Activity -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"/>
+
+        <!-- Main Activity (First Screen) -->
+        <activity
+            android:name=".RestaurantSelectionActivity"
+            android:exported="true"/>
 
         <!-- Menu Activity -->
         <activity
@@ -28,6 +44,35 @@
         <!-- Order Summary Activity -->
         <activity
             android:name=".OrderSummaryActivity"
+            android:exported="false"/>
+
+        <!-- Order Confirmation Activity -->
+        <activity
+            android:name=".OrderConfirmationActivity"
+            android:exported="false"/>
+
+        <!-- Order Tracking Activity -->
+        <activity
+            android:name=".OrderTrackingActivity"
+            android:exported="false"/>
+
+        <!-- Order History Activity -->
+        <activity
+            android:name=".OrderHistoryActivity"
+            android:exported="false"/>
+
+        <!-- Order Details Activity -->
+        <activity
+            android:name=".OrderDetailsActivity"
+            android:exported="false"/>
+
+        <!-- Profile Activity -->
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".EmailAuthActivity"
             android:exported="false"/>
 
     </application>

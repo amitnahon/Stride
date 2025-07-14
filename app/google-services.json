@@ -12,7 +12,20 @@
           "package_name": "com.example.stride"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "851334175817-9qg4crv23dgck1pm1tjl8q7s33d1g82j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.stride",
+            "certificate_hash": "3228e8d8932c5e352af5dd6ca0f60cb58043aef7"
+          }
+        },
+        {
+          "client_id": "851334175817-38bo0sb6qf4uk5t97unlv3v9r6ichnf4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyATQt_xg9HdrfpN2zQI6nO1BvJenR2N1TY"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "851334175817-38bo0sb6qf4uk5t97unlv3v9r6ichnf4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

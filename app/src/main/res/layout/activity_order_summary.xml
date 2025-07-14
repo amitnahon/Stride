@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Order Summary"
+        android:text="@string/order_summary"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
@@ -32,7 +32,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Payment Method:"
+        android:text="@string/payment_method_label"
         android:textSize="16sp"/>
 
     <Spinner
@@ -41,29 +41,40 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"/>
 
-    <EditText
-        android:id="@+id/building_room_input"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/address_label"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Building Number"
-        android:padding="12dp"
-        android:layout_marginBottom="8dp"
-        android:background="@android:drawable/edit_text"/>
+        android:text="@string/delivery_address_label"
+        android:layout_marginTop="16dp"/>
 
     <EditText
-        android:id="@+id/room_number_input"
+        android:id="@+id/address_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Room Number"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:drawable/edit_text"/>
+        android:hint="@string/address_hint"
+        android:layout_marginBottom="8dp"
+        android:inputType="textPostalAddress"
+        android:autofillHints="postalAddress"/>
+
+    <Button
+        android:id="@+id/fetch_location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/use_my_location"/>
+
+    <ProgressBar
+        android:id="@+id/location_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"/>
 
     <Button
         android:id="@+id/confirm_order_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Confirm Order"
+        android:text="@string/confirm_order"
         android:textSize="16sp"
         android:padding="12dp"
         android:backgroundTint="@android:color/holo_blue_light"/>

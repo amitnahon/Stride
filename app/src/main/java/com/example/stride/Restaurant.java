@@ -1,16 +1,18 @@
 package com.example.stride;
 
 public class Restaurant {
-    private String name;
-    private String cuisine;
-    private String imageUrl;
-    private float rating;
+    private final String name;
+    private final String cuisine;
+    private final String imageUrl;
+    private final float rating;
+    private final String address;
 
-    public Restaurant(String name, String cuisine, String imageUrl, float rating) {
+    public Restaurant(String name, String cuisine, String imageUrl, float rating, String address) {
         this.name = name;
         this.cuisine = cuisine;
         this.imageUrl = imageUrl;
         this.rating = rating;
+        this.address = address;
     }
 
     public String getName() {
@@ -28,4 +30,6 @@ public class Restaurant {
     public float getRating() {
         return rating;
     }
+
+    public String getAddress() { return address; }
 } 

@@ -10,4 +10,24 @@
         <item>Meal Plan</item>
         <item>Student ID Balance</item>
     </string-array>
+    <string name="order_summary">Order Summary</string>
+    <string name="payment_method_label">Payment Method:</string>
+    <string name="delivery_address_label">Delivery Address:</string>
+    <string name="address_hint">Enter address or use your location</string>
+    <string name="use_my_location">Use My Location</string>
+    <string name="confirm_order">Confirm Order</string>
+    <string name="total_price_format">Total: $%.2f</string>
+    <string name="unable_to_get_address">Unable to get address</string>
+    <string name="error_fetching_address">Error fetching address</string>
+    <string name="please_fetch_address">Please fetch your address</string>
+    <string name="user_not_signed_in">User not signed in</string>
+    <string name="order_placed">Order placed!</string>
+    <string name="failed_to_place_order">Failed to place order</string>
+    <string name="unable_to_get_location">Unable to get location</string>
+    <string name="select_a_restaurant">Select a Restaurant</string>
+    <string name="profile">Profile</string>
+    <string name="search_restaurants">Search restaurants…</string>
+    <string name="test_crash">Test Crash</string>
+    <string name="failed_to_load_restaurants">Failed to load restaurants</string>
+    <string name="location_permission_denied">Location permission denied</string>
 </resources>
