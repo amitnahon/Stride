@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#FAF6FB">
+
+    <TextView
+        android:id="@+id/login_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign in to Stride"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sign_in_button"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="Sign in with Google"
+        android:icon="@android:drawable/ic_dialog_email"
+        app:iconPadding="16dp"
+        android:textColor="#fff"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@null"
+        android:background="@drawable/rounded_button_google"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/email_auth_button"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="Sign in with Email"
+        android:textColor="#fff"
+        android:backgroundTint="@null"
+        android:background="@drawable/rounded_button_email"/>
+
+</LinearLayout> 
